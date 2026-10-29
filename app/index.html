@@ -1,0 +1,591 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<title>GLOSSWORKS — расчёт и запись</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,600;0,700;1,800;1,900&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0c0d0f;
+    --surface:#16181b;
+    --surface-2:#1f2226;
+    --ink:#f1f2f4;
+    --muted:#8b9099;
+    --line:#26292e;
+    --accent:#ff6a1a;
+    --accent-soft:rgba(255,106,26,.13);
+    --busy:#3a3d43;
+    --danger:#ff4d4f;
+    --ease:cubic-bezier(.22,1,.36,1);
+    --safe-b:env(safe-area-inset-bottom,0px);
+    --display:'Exo 2',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{font-family:'Manrope',system-ui,sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.45;overflow:hidden;-webkit-font-smoothing:antialiased}
+  button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+  input,textarea{font:inherit;color:inherit}
+  img{display:block;max-width:100%}
+  .ac{color:var(--accent)}
+
+  .top{position:fixed;inset:0 0 auto;z-index:20;background:var(--bg);padding:12px 16px 10px;transition:transform .4s var(--ease),opacity .3s}
+  .top.hide{transform:translateY(-100%);opacity:0;pointer-events:none}
+  .top-row{display:flex;align-items:center;gap:12px}
+  .back{height:36px;padding:0 14px 0 10px;border-radius:10px;background:var(--surface);border:1px solid var(--line);display:flex;align-items:center;gap:4px;font-size:14px;font-weight:600}
+  .top-title{font-family:var(--display);font-weight:800;font-style:italic;text-transform:uppercase;font-size:17px}
+  .top-step{margin-left:auto;font-size:13px;color:var(--muted)}
+  .bar{height:4px;background:var(--line);margin-top:12px;overflow:hidden;border-radius:4px;transform:skewX(-20deg)}
+  .bar i{display:block;height:100%;width:25%;background:var(--accent);transition:width .6s var(--ease)}
+
+  .screens{position:relative;height:100%;overflow:hidden}
+  .screen{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:84px 16px calc(120px + var(--safe-b));opacity:0;transform:translateX(40px);pointer-events:none;transition:opacity .45s var(--ease),transform .55s var(--ease)}
+  .screen.active{opacity:1;transform:none;pointer-events:auto}
+  .screen.left{transform:translateX(-40px)}
+  #s-home{padding-top:16px}
+  .h{font-family:var(--display);font-weight:900;font-style:italic;text-transform:uppercase;font-size:28px;line-height:1;margin-bottom:8px}
+  .sub{color:var(--muted);margin-bottom:16px}
+  .label{font-family:var(--display);font-weight:800;font-style:italic;text-transform:uppercase;letter-spacing:.12em;font-size:12px;color:var(--accent);margin:22px 0 10px}
+  .screen .st{opacity:0;transform:translateY(14px)}
+  .screen.active .st{animation:rise .6s var(--ease) forwards;animation-delay:calc(var(--i,0) * 45ms + 80ms)}
+  @keyframes rise{to{opacity:1;transform:none}}
+
+  /* home */
+  .hero{position:relative;border-radius:20px;overflow:hidden;height:250px;background:#111}
+  .hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;animation:zoom 8s var(--ease) forwards}
+  @keyframes zoom{from{transform:scale(1.12)}to{transform:scale(1)}}
+  .hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(12,13,15,.2),rgba(12,13,15,.92))}
+  .hero-top{position:absolute;z-index:1;top:16px;left:16px;right:16px;display:flex;justify-content:space-between;align-items:center}
+  .logo{font-family:var(--display);font-weight:900;font-style:italic;font-size:17px}
+  .logo b{color:var(--accent)}
+  .pill{background:rgba(12,13,15,.6);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);padding:6px 12px;border-radius:999px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px}
+  .pill::before{content:"";width:7px;height:7px;border-radius:50%;background:#3ddc84}
+  .pill.closed::before{background:var(--danger)}
+  .hero-in{position:absolute;z-index:1;left:16px;right:16px;bottom:16px}
+  .hero h1{font-family:var(--display);font-weight:900;font-style:italic;text-transform:uppercase;font-size:30px;line-height:.95}
+  .hero p{color:rgba(241,242,244,.8);font-size:14px;margin-top:8px}
+  .cta{width:100%;height:56px;background:var(--accent);color:#0c0d0f;font-family:var(--display);font-weight:900;font-style:italic;text-transform:uppercase;font-size:16px;letter-spacing:.04em;display:flex;align-items:center;justify-content:center;gap:10px;clip-path:polygon(12px 0,100% 0,calc(100% - 12px) 100%,0 100%);transition:transform .2s var(--ease),opacity .3s,background .3s}
+  .cta:active{transform:scale(.97)}
+  .cta:disabled{background:var(--surface-2);color:var(--muted)}
+  .perks{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+  .perk{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 8px;text-align:center}
+  .perk b{display:block;font-family:var(--display);font-weight:800;font-style:italic;font-size:19px}
+  .perk span{font-size:12px;color:var(--muted)}
+
+  /* car */
+  .search{position:relative}
+  .search input{width:100%;height:54px;border-radius:14px;border:1.5px solid var(--line);background:var(--surface);padding:0 16px 0 46px;font-size:16px;outline:none;transition:border-color .25s}
+  .search input:focus{border-color:var(--accent)}
+  .search svg{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--muted)}
+  .cars{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+  .car{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:12px;text-align:left;transition:border-color .25s,background .25s,transform .2s var(--ease)}
+  .car:active{transform:scale(.97)}
+  .car b{display:block;font-weight:700;font-size:14px}
+  .car small{color:var(--muted);font-size:12px}
+  .car.on{border-color:var(--accent);background:var(--accent-soft)}
+  .empty{color:var(--muted);font-size:14px;padding:12px 2px}
+  .cls{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .cl{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:12px 6px;text-align:center;font-weight:700;font-size:13px;transition:border-color .25s,background .25s}
+  .cl span{display:block;font-size:24px;margin-bottom:2px}
+  .cl.on{border-color:var(--accent);background:var(--accent-soft)}
+
+  /* services */
+  .carline{display:flex;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:6px;font-size:14px}
+  .carline b{font-family:var(--display);font-style:italic;font-weight:800}
+  .packs{display:flex;gap:8px;overflow-x:auto;margin:0 -16px;padding:0 16px 2px;scrollbar-width:none}
+  .packs::-webkit-scrollbar{display:none}
+  .pack{flex:none;background:var(--surface);border:1.5px dashed rgba(255,106,26,.5);border-radius:14px;padding:10px 14px;text-align:left;font-size:13px}
+  .pack b{display:block;font-family:var(--display);font-weight:800;font-style:italic;text-transform:uppercase;font-size:14px;color:var(--accent)}
+  .svcs{display:flex;flex-direction:column;gap:8px}
+  .sv{display:flex;align-items:center;gap:12px;background:var(--surface);border:1.5px solid var(--line);border-radius:16px;padding:10px;text-align:left;width:100%;transition:border-color .25s,background .25s}
+  .sv img{width:56px;height:56px;border-radius:12px;object-fit:cover;flex:none}
+  .sv .tx{flex:1;min-width:0}
+  .sv b{display:block;font-weight:700;font-size:14px}
+  .sv small{color:var(--muted);font-size:12px}
+  .sv .pr{font-family:var(--display);font-weight:800;font-style:italic;font-size:15px;white-space:nowrap}
+  .sv .ck{width:26px;height:26px;flex:none;border-radius:8px;border:2px solid var(--busy);display:grid;place-items:center;transition:background .25s,border-color .25s}
+  .sv .ck svg{opacity:0;transform:scale(.4);transition:opacity .2s,transform .3s var(--ease)}
+  .sv.on{border-color:var(--accent);background:var(--accent-soft)}
+  .sv.on .ck{background:var(--accent);border-color:var(--accent)}
+  .sv.on .ck svg{opacity:1;transform:none}
+  .note{font-size:12px;color:var(--muted);margin-top:12px}
+
+  /* dates */
+  .days{display:flex;gap:8px;overflow-x:auto;margin:0 -16px;padding:2px 16px 4px;scrollbar-width:none}
+  .days::-webkit-scrollbar{display:none}
+  .day{flex:none;width:58px;height:74px;border-radius:14px;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;transition:background .25s,color .25s}
+  .day span{font-size:12px;color:var(--muted)}
+  .day b{font-family:var(--display);font-weight:800;font-style:italic;font-size:22px}
+  .day.on{background:var(--accent);color:#0c0d0f;border-color:var(--accent)}
+  .day.on span{color:rgba(12,13,15,.7)}
+  .slots{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+  .slot{height:46px;border-radius:12px;background:var(--surface);border:1px solid var(--line);font-weight:700;font-size:14px;position:relative;transition:background .25s,color .25s}
+  .slot small{position:absolute;right:5px;top:3px;font-size:9px;color:var(--accent);font-weight:700}
+  .slot.on{background:var(--accent);color:#0c0d0f}
+  .slot.on small{color:#0c0d0f}
+  .slot:disabled{background:transparent;color:var(--busy);text-decoration:line-through;border-style:dashed}
+  .slots-group{font-size:13px;color:var(--muted);margin:16px 0 8px}
+
+  /* form */
+  .summary{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:6px 16px}
+  .summary div{display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid var(--line);font-size:14px}
+  .summary div:last-child{border:0}
+  .summary span{color:var(--muted)}
+  .summary b{text-align:right;font-weight:600}
+  .summary .total b{font-family:var(--display);font-style:italic;font-weight:900;font-size:18px;color:var(--accent)}
+  .field{margin-top:10px;position:relative}
+  .field input,.field textarea{width:100%;height:54px;border-radius:14px;border:1.5px solid var(--line);background:var(--surface);padding:0 16px;font-size:16px;outline:none;transition:border-color .25s}
+  .field textarea{height:80px;padding:14px 16px;resize:none}
+  .field input:focus,.field textarea:focus{border-color:var(--accent)}
+  .field.err input{border-color:var(--danger);animation:shake .4s}
+  @keyframes shake{25%{transform:translateX(-6px)}50%{transform:translateX(5px)}75%{transform:translateX(-3px)}}
+  .field .tgbtn{position:absolute;right:8px;top:8px;height:38px;padding:0 12px;border-radius:10px;background:var(--accent-soft);color:var(--accent);font-size:13px;font-weight:700}
+  .field input:has(+ .tgbtn:not([style*="none"])){padding-right:138px}
+  .plate{display:flex;align-items:center;height:62px;border:2.5px solid #e6e7ea;border-radius:10px;background:#f6f7f9;color:#111;overflow:hidden;margin-top:10px}
+  .plate.err{border-color:var(--danger);animation:shake .4s}
+  .plate .reg{width:58px;height:100%;border:0;border-right:2.5px solid #e6e7ea;background:none;outline:none;text-align:center;font-family:var(--display);font-weight:800;font-size:22px;color:#111}
+  .plate input{flex:1;height:100%;border:0;background:none;outline:none;font-family:var(--display);font-weight:800;font-size:24px;letter-spacing:.08em;text-transform:uppercase;padding:0 12px;color:#111}
+  .plate .uz{width:50px;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-weight:800;font-size:12px;color:#1c4fa1}
+  .plate .uz i{width:26px;height:16px;border-radius:2px;background:linear-gradient(#1eb3e6 0 33%,#fff 33% 66%,#1eb53a 66%)}
+
+  .bottom{position:fixed;left:0;right:0;bottom:0;z-index:20;padding:10px 16px calc(12px + var(--safe-b));background:linear-gradient(180deg,rgba(12,13,15,0),var(--bg) 26%);transform:translateY(110%);transition:transform .45s var(--ease)}
+  .bottom.show{transform:none}
+  .sumrow{display:flex;justify-content:space-between;align-items:baseline;margin:0 4px 8px}
+  .sumrow .t{font-family:var(--display);font-weight:900;font-style:italic;font-size:26px}
+  .sumrow small{color:var(--muted);font-size:13px}
+  .sumrow .disc{color:#3ddc84;font-size:12px;font-weight:700;margin-left:6px}
+
+  #s-done{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding-top:40px}
+  .flag{width:120px;height:120px;margin-bottom:20px}
+  #s-done.active .flag{animation:pop .7s var(--ease)}
+  @keyframes pop{0%{transform:scale(.3) rotate(-20deg);opacity:0}100%{transform:none;opacity:1}}
+  #s-done .summary{width:100%;margin-top:20px;text-align:left}
+  .conf{position:fixed;inset:0;pointer-events:none;z-index:30;overflow:hidden}
+  .conf i{position:absolute;top:-12px;width:8px;height:14px;animation:fall linear forwards}
+  @keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+</style>
+</head>
+<body>
+
+<div class="top hide" id="top">
+  <div class="top-row">
+    <button class="back" id="backBtn"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 3 5 8l5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Назад</button>
+    <div class="top-title" id="topTitle">Автомобиль</div>
+    <div class="top-step" id="topStep">Шаг 1 из 4</div>
+  </div>
+  <div class="bar"><i id="barFill"></i></div>
+</div>
+
+<div class="screens">
+
+  <!-- HOME -->
+  <section class="screen active" id="s-home">
+    <div class="hero st">
+      <img src="https://images.unsplash.com/photo-1567808291548-fc3ee04dbcf0?auto=format&fit=crop&w=900&q=70" alt="">
+      <div class="hero-top"><span class="logo">GLOSS<b>WORKS</b></span><span class="pill" id="openPill">Открыто до 21:00</span></div>
+      <div class="hero-in"><h1 id="hello">Привет!</h1><p>Посчитаем стоимость для твоей машины и запишем в свободный бокс</p></div>
+    </div>
+    <button class="cta st" style="--i:1;margin-top:14px" id="startBtn">Рассчитать стоимость →</button>
+    <div class="perks">
+      <div class="perk st" style="--i:2"><b>1 мин</b><span>расчёт цены</span></div>
+      <div class="perk st" style="--i:3"><b>3</b><span>бокса</span></div>
+      <div class="perk st" style="--i:4"><b>−10%</b><span>от 3 услуг</span></div>
+    </div>
+    <div class="label st" style="--i:5">Адрес</div>
+    <div class="summary st" style="--i:6">
+      <div><span>📍 Ташкент</span><b>ул. Бабура, 78</b></div>
+      <div><span>🕘 Ежедневно</span><b>9:00 – 21:00</b></div>
+      <div><span>📞 Телефон</span><b>+998 71 200-55-66</b></div>
+    </div>
+  </section>
+
+  <!-- CAR -->
+  <section class="screen" id="s-car">
+    <h2 class="h st">Какая <span class="ac">машина?</span></h2>
+    <p class="sub st" style="--i:1">От класса зависит цена — посчитаем точно</p>
+    <div class="search st" style="--i:2"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="m20 20-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><input id="carSearch" placeholder="Марка или модель: Cobalt, Tucson…" autocomplete="off"></div>
+    <div class="cars st" style="--i:3" id="cars"></div>
+    <div class="label st" style="--i:4">Нет в списке? Выберите класс</div>
+    <div class="cls st" style="--i:5" id="cls">
+      <button class="cl" data-c="0"><span>🚗</span>Седан / хэтч</button>
+      <button class="cl" data-c="1"><span>🚙</span>Кроссовер</button>
+      <button class="cl" data-c="2"><span>🛻</span>Внедорожник</button>
+    </div>
+  </section>
+
+  <!-- SERVICES -->
+  <section class="screen" id="s-svc">
+    <h2 class="h st">Что <span class="ac">делаем?</span></h2>
+    <div class="carline st" style="--i:1"><span id="carLine"></span><b id="clsLine"></b></div>
+    <div class="label st" style="--i:2">Готовые пакеты</div>
+    <div class="packs st" style="--i:3" id="packs"></div>
+    <div id="svcGroups"></div>
+    <p class="note">Масло и фильтры оплачиваются отдельно по чеку. Скидка 10% при выборе 3 и более услуг.</p>
+  </section>
+
+  <!-- TIME -->
+  <section class="screen" id="s-time">
+    <h2 class="h st">Когда <span class="ac">приехать?</span></h2>
+    <p class="sub st" style="--i:1" id="durLine"></p>
+    <div class="days st" style="--i:2" id="days"></div>
+    <div id="slots"></div>
+  </section>
+
+  <!-- FORM -->
+  <section class="screen" id="s-form">
+    <h2 class="h st">Почти <span class="ac">готово</span></h2>
+    <div class="summary st" style="--i:1" id="summary"></div>
+    <div class="label st" style="--i:2">Госномер</div>
+    <div class="plate st" style="--i:3" id="plateBox"><input class="reg" id="plateReg" value="01" inputmode="numeric" maxlength="2" aria-label="Код региона"><input id="plate" placeholder="A 123 BC" maxlength="9" autocomplete="off"><span class="uz"><i></i>UZ</span></div>
+    <div class="label st" style="--i:4">Контакты</div>
+    <div class="field st" style="--i:5" id="fName"><input id="name" placeholder="Имя" autocomplete="name" maxlength="40"><button class="tgbtn" id="tgName" type="button">👤 Из Telegram</button></div>
+    <div class="field st" style="--i:6" id="fPhone"><input id="phone" type="tel" inputmode="tel" placeholder="+998 __ ___-__-__" autocomplete="tel"><button class="tgbtn" id="tgPhone" type="button">📱 Из Telegram</button></div>
+    <div class="field st" style="--i:7"><textarea id="comment" placeholder="Комментарий: царапина на двери, нужна мойка днища…" maxlength="200"></textarea></div>
+  </section>
+
+  <!-- DONE -->
+  <section class="screen" id="s-done">
+    <svg class="flag" viewBox="0 0 120 120" fill="none"><circle cx="60" cy="60" r="56" fill="rgba(255,106,26,.13)"/><path d="M42 92V30" stroke="#f1f2f4" stroke-width="5" stroke-linecap="round"/><path d="M44 32h40l-8 12 8 12H44" fill="#ff6a1a"/><path d="M52 32h8v8h-8zM68 32h8v8h-8zM60 40h8v8h-8zM52 48h8v8h-8zM68 48h8v8h-8z" fill="#0c0d0f"/></svg>
+    <h2 class="h">Вы <span class="ac">записаны!</span></h2>
+    <p class="sub" id="doneSub">Подтверждение и статусы будут приходить в чат с ботом</p>
+    <div class="summary" id="doneSummary"></div>
+  </section>
+</div>
+
+<div class="bottom" id="bottom">
+  <div class="sumrow" id="sumRow"><span><span class="t" id="sumT">0</span> <small>сум</small><span class="disc" id="sumDisc"></span></span><small id="sumDur"></small></div>
+  <button class="cta" id="nextBtn" disabled>Далее</button>
+</div>
+
+<script>
+(() => {
+  // initData is empty when opened from a keyboard button, so detect Telegram by platform
+  const W = window.Telegram && Telegram.WebApp;
+  const tg = W && W.platform && W.platform !== 'unknown' ? W : null;
+  const params = new URLSearchParams(location.search);
+  const $ = id => document.getElementById(id);
+  const haptic = (type, v) => { try { tg && (type === 'n' ? tg.HapticFeedback.notificationOccurred(v) : type === 's' ? tg.HapticFeedback.selectionChanged() : tg.HapticFeedback.impactOccurred(v)); } catch (e) {} };
+  const fmt = n => Math.round(n).toLocaleString('ru-RU').replace(/ /g, ' ');
+
+  if (tg) {
+    tg.ready(); tg.expand();
+    try { tg.setHeaderColor('#0c0d0f'); tg.setBackgroundColor('#0c0d0f'); } catch (e) {}
+    if (tg.isVersionAtLeast && tg.isVersionAtLeast('7.7')) tg.disableVerticalSwipes();
+    tg.BackButton.onClick(() => back());
+  }
+
+  /* ---------- name, hours ---------- */
+  const u = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
+  const tgName = (u && [u.first_name, u.last_name].filter(Boolean).join(' ')) || params.get('name') || '';
+  if (tgName) $('hello').textContent = `Привет, ${tgName.split(' ')[0]}!`;
+  const OPEN = 9, CLOSE = 21;
+  const hr = new Date().getHours();
+  if (hr < OPEN || hr >= CLOSE) { $('openPill').textContent = 'Откроемся в 9:00'; $('openPill').classList.add('closed'); }
+
+  /* ---------- data ---------- */
+  const CLS = ['Седан', 'Кроссовер', 'Внедорожник'];
+  const CARS = [
+    ['Chevrolet Cobalt', 0], ['Chevrolet Gentra', 0], ['Chevrolet Nexia 3', 0], ['Chevrolet Onix', 0], ['Chevrolet Malibu', 0], ['Chevrolet Spark', 0],
+    ['Chevrolet Tracker', 1], ['Chevrolet Equinox', 1], ['Chevrolet Captiva', 1], ['Chevrolet Traverse', 2], ['Chevrolet Tahoe', 2],
+    ['BYD Han', 0], ['BYD Chazor', 0], ['BYD Song Plus', 1], ['BYD Tang', 2],
+    ['Kia K5', 0], ['Kia Sportage', 1], ['Kia Sorento', 2], ['Hyundai Elantra', 0], ['Hyundai Sonata', 0], ['Hyundai Tucson', 1], ['Hyundai Santa Fe', 2],
+    ['Toyota Camry', 0], ['Toyota RAV4', 1], ['Toyota Land Cruiser', 2], ['Lexus RX', 1], ['Lexus LX', 2],
+    ['Mercedes E-Class', 0], ['Mercedes GLE', 2], ['BMW 5 Series', 0], ['BMW X5', 2], ['Tesla Model 3', 0], ['Tesla Model Y', 1],
+    ['Haval Jolion', 1], ['Haval H6', 1], ['Chery Tiggo 7 Pro', 1], ['Li Auto L7', 2], ['Zeekr 001', 0]
+  ];
+  const POPULAR = ['Chevrolet Cobalt', 'Chevrolet Gentra', 'Chevrolet Malibu', 'Chevrolet Tracker', 'BYD Song Plus', 'Kia K5', 'Toyota Camry', 'Hyundai Tucson'];
+  const IMG = id => `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=160&h=160&q=70`;
+  const GROUPS = [
+    ['Мойка', [
+      { id: 'wash', n: 'Детейлинг-мойка', p: [80000, 100000, 130000], m: 60, img: '1761312834150-4beefff097a7' },
+      { id: 'rain', n: 'Антидождь на стёкла', p: [150000, 170000, 200000], m: 30, img: '1607860108855-64acf2078ed9' },
+      { id: 'engine', n: 'Мойка двигателя', p: [200000, 230000, 260000], m: 40, img: '1615906655593-ad0386982a0f' }
+    ]],
+    ['Кузов', [
+      { id: 'polish', n: 'Полировка кузова', p: [1200000, 1500000, 1900000], m: 360, img: '1708805282695-ef186db20192' },
+      { id: 'ceramic', n: 'Керамика в 2 слоя', p: [3500000, 4200000, 5000000], m: 480, img: '1708805282683-50a060eba80f' }
+    ]],
+    ['Салон', [
+      { id: 'dry', n: 'Химчистка салона', p: [600000, 750000, 900000], m: 270, img: '1549064233-945d7063292f' },
+      { id: 'ozone', n: 'Озонирование', p: [150000, 150000, 180000], m: 30, img: '1732357624591-f2137085659b' }
+    ]],
+    ['ТО и шины', [
+      { id: 'oil', n: 'Замена масла (работа)', p: [100000, 120000, 150000], m: 30, img: '1487754180451-c456f719a1fc' },
+      { id: 'diag', n: 'Компьютерная диагностика', p: [150000, 150000, 150000], m: 40, img: '1771340742493-52fbd5476ccb' },
+      { id: 'tires', n: 'Шиномонтаж, 4 колеса', p: [160000, 200000, 260000], m: 50, img: '1760836395760-9831facb4754' }
+    ]]
+  ];
+  const SVC = Object.fromEntries(GROUPS.flatMap(g => g[1]).map(s => [s.id, s]));
+  const PACKS = [['Экспресс', ['wash', 'rain']], ['Комплекс', ['wash', 'dry', 'ozone']], ['Премиум', ['polish', 'ceramic', 'dry']], ['ТО', ['oil', 'diag']]];
+  const state = { car: null, cls: null, svcs: new Set(), date: null, time: null };
+
+  /* ---------- totals ---------- */
+  const raw = () => [...state.svcs].reduce((s, id) => s + SVC[id].p[state.cls], 0);
+  const discount = () => state.svcs.size >= 3 ? Math.round(raw() * .1) : 0;
+  const total = () => raw() - discount();
+  const minutes = () => [...state.svcs].reduce((s, id) => s + SVC[id].m, 0);
+  const durText = m => m >= 480 ? 'целый день' : m >= 60 ? `≈ ${Math.round(m / 30) / 2} ч`.replace('.', ',') : `≈ ${m} мин`;
+  let shown = 0, anim = null;
+  function updSum() {
+    const to = total();
+    cancelAnimationFrame(anim);
+    const from = shown, t0 = performance.now();
+    const step = t => {
+      const k = Math.min(1, (t - t0) / 500), e = 1 - Math.pow(1 - k, 3);
+      shown = from + (to - from) * e;
+      $('sumT').textContent = fmt(shown);
+      if (k < 1) anim = requestAnimationFrame(step);
+    };
+    anim = requestAnimationFrame(step);
+    $('sumDisc').textContent = discount() ? `−10%` : '';
+    $('sumDur').textContent = state.svcs.size ? durText(minutes()) : '';
+  }
+
+  /* ---------- navigation ---------- */
+  const order = ['s-home', 's-car', 's-svc', 's-time', 's-form', 's-done'];
+  const titles = { 's-car': 'Автомобиль', 's-svc': 'Услуги', 's-time': 'Дата и время', 's-form': 'Подтверждение' };
+  let cur = 0;
+  function go(idx) {
+    const from = $(order[cur]), to = $(order[idx]);
+    document.querySelectorAll('.screen.active').forEach(s => s.classList.remove('active'));
+    from.classList.toggle('left', idx > cur);
+    to.classList.remove('left');
+    to.querySelectorAll('.st').forEach(el => { el.style.animation = 'none'; el.offsetHeight; el.style.animation = ''; });
+    to.scrollTop = 0;
+    to.classList.add('active');
+    cur = idx;
+    const id = order[idx], inFlow = idx >= 1 && idx <= 4;
+    $('top').classList.toggle('hide', !inFlow);
+    if (inFlow) { $('topTitle').textContent = titles[id]; $('topStep').textContent = `Шаг ${idx} из 4`; $('barFill').style.width = idx * 25 + '%'; }
+    if (tg) idx > 0 && idx < 5 ? tg.BackButton.show() : tg.BackButton.hide();
+    if (id === 's-svc') renderServices();
+    if (id === 's-time') renderDays();
+    if (id === 's-form') renderSummary('summary');
+    updBottom();
+  }
+  function back() { if (cur > 0 && cur < 5) { haptic('i', 'light'); go(cur - 1); } }
+  $('backBtn').onclick = back;
+  $('startBtn').onclick = () => { haptic('i', 'medium'); go(1); };
+
+  function updBottom() {
+    const id = order[cur];
+    const show = ['s-svc', 's-time', 's-form'].includes(id);
+    $('bottom').classList.toggle('show', show);
+    $('sumRow').style.display = show ? '' : 'none';
+    const btn = $('nextBtn');
+    if (id === 's-svc') { btn.disabled = !state.svcs.size; btn.textContent = state.svcs.size ? 'Выбрать время →' : 'Отметьте услуги'; }
+    if (id === 's-time') { btn.disabled = !state.time; btn.textContent = state.time ? `Далее · ${fmtDate(state.date, true)}, ${state.time}` : 'Выберите время'; }
+    if (id === 's-form') { btn.disabled = false; btn.textContent = 'Записаться'; }
+  }
+  $('nextBtn').onclick = () => {
+    haptic('i', 'medium');
+    if (order[cur] === 's-svc') go(3);
+    else if (order[cur] === 's-time') go(4);
+    else if (order[cur] === 's-form') submit();
+  };
+
+  /* ---------- step 1: car ---------- */
+  function renderCars(q) {
+    q = (q || '').trim().toLowerCase();
+    const list = q ? CARS.filter(c => c[0].toLowerCase().includes(q)).slice(0, 10) : CARS.filter(c => POPULAR.includes(c[0]));
+    $('cars').innerHTML = list.length
+      ? list.map(c => `<button class="car${state.car === c[0] ? ' on' : ''}" data-n="${c[0]}" data-c="${c[1]}"><b>${c[0]}</b><small>${CLS[c[1]]}</small></button>`).join('')
+      : '<p class="empty">Не нашли модель — выберите класс ниже 👇</p>';
+  }
+  renderCars();
+  $('carSearch').addEventListener('input', e => renderCars(e.target.value));
+  $('cars').addEventListener('click', e => {
+    const b = e.target.closest('.car');
+    if (!b) return;
+    pickCar(b.dataset.n, +b.dataset.c);
+    document.querySelectorAll('.car').forEach(x => x.classList.toggle('on', x === b));
+  });
+  $('cls').addEventListener('click', e => {
+    const b = e.target.closest('.cl');
+    if (!b) return;
+    document.querySelectorAll('.cl').forEach(x => x.classList.toggle('on', x === b));
+    const q = $('carSearch').value.trim();
+    pickCar(q ? q.replace(/\b\w/g, ch => ch.toUpperCase()) : CLS[+b.dataset.c], +b.dataset.c);
+  });
+  function pickCar(name, cls) {
+    haptic('s');
+    state.car = name; state.cls = cls;
+    setTimeout(() => go(2), 240);
+  }
+
+  /* ---------- step 2: services ---------- */
+  $('packs').innerHTML = PACKS.map((p, i) => `<button class="pack" data-i="${i}"><b>${p[0]}</b>${p[1].map(id => SVC[id].n.split(' ')[0]).join(' + ')}</button>`).join('');
+  $('packs').addEventListener('click', e => {
+    const b = e.target.closest('.pack');
+    if (!b) return;
+    state.svcs = new Set(PACKS[+b.dataset.i][1]);
+    haptic('n', 'success');
+    renderServices(true);
+  });
+  function renderServices(keepScroll) {
+    $('carLine').textContent = state.car;
+    $('clsLine').textContent = CLS[state.cls];
+    $('svcGroups').innerHTML = GROUPS.map(([g, list], gi) => `<div class="label${keepScroll ? '' : ' st'}" style="--i:${4 + gi}">${g}</div><div class="svcs${keepScroll ? '' : ' st'}" style="--i:${4 + gi}">` +
+      list.map(s => `<button class="sv${state.svcs.has(s.id) ? ' on' : ''}" data-id="${s.id}"><img src="${IMG(s.img)}" alt="" loading="lazy"><span class="tx"><b>${s.n}</b><small>${durText(s.m)}</small></span><span class="pr">${fmt(s.p[state.cls])}</span><span class="ck"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="m2.5 7.5 3 3 6-7" stroke="#0c0d0f" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>`).join('') + '</div>').join('');
+    updSum(); updBottom();
+  }
+  $('svcGroups').addEventListener('click', e => {
+    const b = e.target.closest('.sv');
+    if (!b) return;
+    const id = b.dataset.id;
+    state.svcs.has(id) ? state.svcs.delete(id) : state.svcs.add(id);
+    b.classList.toggle('on', state.svcs.has(id));
+    haptic('s');
+    updSum(); updBottom();
+  });
+
+  /* ---------- step 3: day & time ---------- */
+  const WD = ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'];
+  const MON = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+  const iso = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  const fmtDate = (s, short) => { const d = new Date(s + 'T00:00'); return short ? `${d.getDate()} ${MON[d.getMonth()].slice(0, 3)}` : `${d.getDate()} ${MON[d.getMonth()]}, ${WD[d.getDay()]}`; };
+  const BOXES = 3;
+  // real bookings per slot come from the bot as "YYMMDD-HHMM" repeated once per booked box
+  const taken = {};
+  (params.get('busy') || '').split('.').filter(Boolean).forEach(k => taken[k] = (taken[k] || 0) + 1);
+  const key = (date, time) => `${date.slice(2).replace(/-/g, '')}-${time.replace(':', '')}`;
+  function fakeTaken(date, time) {
+    let h = 5;
+    for (const ch of date + time) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+    return h % 100 < 12 ? 3 : h % 100 < 27 ? 2 : h % 100 < 40 ? 1 : 0; // demo filler: looks like a busy shop
+  }
+  const freeBoxes = (date, time) => BOXES - Math.min(BOXES, (taken[key(date, time)] || 0) + fakeTaken(date, time));
+  const TIMES = [];
+  for (let m = OPEN * 60; m <= (CLOSE - 1) * 60; m += 30) TIMES.push(`${String(m / 60 | 0).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`);
+  function renderDays() {
+    $('durLine').textContent = `${state.car} · ${durText(minutes())}`;
+    const now = new Date(), list = [];
+    for (let k = 0; k < 10; k++) { const d = new Date(now); d.setDate(now.getDate() + k); list.push(d); }
+    if (now.getHours() >= CLOSE - 1) list.shift();
+    if (!state.date || !list.some(d => iso(d) === state.date)) state.date = iso(list[0]);
+    $('days').innerHTML = list.map(d => `<button class="day${iso(d) === state.date ? ' on' : ''}" data-d="${iso(d)}"><span>${iso(d) === iso(now) ? 'сег' : WD[d.getDay()]}</span><b>${d.getDate()}</b></button>`).join('');
+    renderSlots(false);
+  }
+  $('days').addEventListener('click', e => {
+    const b = e.target.closest('.day');
+    if (!b) return;
+    state.date = b.dataset.d; state.time = null;
+    document.querySelectorAll('.day').forEach(x => x.classList.toggle('on', x === b));
+    haptic('s');
+    renderSlots(true);
+  });
+  function renderSlots(animate) {
+    const now = new Date(), isToday = state.date === iso(now), nowMin = now.getHours() * 60 + now.getMinutes() + 60;
+    const groups = [['Утро', t => t < '12:00'], ['День', t => t >= '12:00' && t < '17:00'], ['Вечер', t => t >= '17:00']];
+    $('slots').innerHTML = groups.map(([g, f], gi) => `<div class="slots-group${animate ? '' : ' st'}" style="--i:${3 + gi}">${g}</div><div class="slots${animate ? '' : ' st'}" style="--i:${3 + gi}">` +
+      TIMES.filter(f).map(t => {
+        const [hh, mm] = t.split(':').map(Number);
+        const free = freeBoxes(state.date, t);
+        const off = (isToday && hh * 60 + mm < nowMin) || free <= 0;
+        return `<button class="slot${state.time === t ? ' on' : ''}" data-t="${t}" ${off ? 'disabled' : ''}>${t}${!off && free === 1 ? '<small>1</small>' : ''}</button>`;
+      }).join('') + '</div>').join('');
+    if (animate) $('slots').animate([{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 350, easing: 'cubic-bezier(.22,1,.36,1)' });
+    updBottom();
+  }
+  $('slots').addEventListener('click', e => {
+    const b = e.target.closest('.slot');
+    if (!b || b.disabled) return;
+    state.time = b.dataset.t;
+    document.querySelectorAll('.slot').forEach(x => x.classList.toggle('on', x === b));
+    haptic('s');
+    updBottom();
+  });
+
+  /* ---------- step 4: summary, plate, contacts ---------- */
+  function renderSummary(id) {
+    $(id).innerHTML = `
+      <div><span>Авто</span><b>${state.car} · ${CLS[state.cls]}</b></div>
+      <div><span>Услуги</span><b>${[...state.svcs].map(s => SVC[s].n).join(', ')}</b></div>
+      <div><span>Когда</span><b>${fmtDate(state.date)}, ${state.time}</b></div>
+      ${discount() ? `<div><span>Скидка 10%</span><b>−${fmt(discount())} сум</b></div>` : ''}
+      <div class="total"><span>Итого</span><b>${fmt(total())} сум</b></div>`;
+  }
+  // Uzbek plates: 2-digit region + "A 123 BC" (private) or "123 ABC" (company); split letter and digit groups
+  const plate = $('plate'), plateReg = $('plateReg');
+  plate.addEventListener('input', () => {
+    plate.value = plate.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 7)
+      .replace(/([A-Z])(?=\d)/g, '$1 ').replace(/(\d)(?=[A-Z])/g, '$1 ');
+    $('plateBox').classList.remove('err');
+  });
+  plateReg.addEventListener('input', () => { plateReg.value = plateReg.value.replace(/\D/g, '').slice(0, 2); if (plateReg.value.length === 2) plate.focus(); });
+  const nameInput = $('name'), tgNameBtn = $('tgName'), phone = $('phone');
+  if (tgName) {
+    nameInput.value = tgName; tgNameBtn.style.display = 'none';
+    nameInput.addEventListener('input', () => { tgNameBtn.style.display = nameInput.value.trim() === tgName ? 'none' : ''; });
+    tgNameBtn.onclick = () => { nameInput.value = tgName; tgNameBtn.style.display = 'none'; $('fName').classList.remove('err'); haptic('s'); };
+  } else tgNameBtn.style.display = 'none';
+  function maskPhone(v) {
+    let d = v.replace(/\D/g, '');
+    if (!d.startsWith('998')) d = '998' + d.replace(/^998?/, '');
+    d = d.slice(0, 12);
+    const p = [d.slice(0, 3), d.slice(3, 5), d.slice(5, 8), d.slice(8, 10), d.slice(10, 12)];
+    return '+' + p[0] + (p[1] ? ' ' + p[1] : '') + (p[2] ? ' ' + p[2] : '') + (p[3] ? '-' + p[3] : '') + (p[4] ? '-' + p[4] : '');
+  }
+  phone.addEventListener('focus', () => { if (!phone.value) phone.value = '+998 '; });
+  phone.addEventListener('input', () => { phone.value = maskPhone(phone.value); $('fPhone').classList.remove('err'); });
+  nameInput.addEventListener('input', () => $('fName').classList.remove('err'));
+  const tgPhone = $('tgPhone');
+  if (!tg || !tg.requestContact || !tg.isVersionAtLeast('6.9')) tgPhone.style.display = 'none';
+  tgPhone.onclick = () => tg.requestContact((ok, res) => {
+    const num = ok && res && res.responseUnsafe && res.responseUnsafe.contact && res.responseUnsafe.contact.phone_number;
+    if (num) { phone.value = maskPhone(num); haptic('n', 'success'); }
+  });
+
+  function submit() {
+    const name = nameInput.value.trim(), digits = phone.value.replace(/\D/g, ''), pl = plate.value.replace(/\s/g, '');
+    let bad = false;
+    if (pl.length < 5 || plateReg.value.length !== 2) { $('plateBox').classList.add('err'); bad = true; }
+    if (name.length < 2) { $('fName').classList.add('err'); bad = true; }
+    if (digits.length !== 12) { $('fPhone').classList.add('err'); bad = true; }
+    if (bad) { haptic('n', 'error'); return; }
+    const payload = {
+      car: state.car, cls: CLS[state.cls],
+      services: [...state.svcs].map(id => ({ n: SVC[id].n, p: SVC[id].p[state.cls] })),
+      minutes: minutes(), date: state.date, time: state.time,
+      plate: `${plateReg.value} ${plate.value.trim()}`,
+      name, phone: phone.value, comment: $('comment').value.trim()
+    };
+    renderSummary('doneSummary');
+    $('bottom').classList.remove('show');
+    haptic('n', 'success');
+    go(5);
+    confetti();
+    if (tg) {
+      tg.BackButton.hide();
+      setTimeout(() => {
+        try { tg.sendData(JSON.stringify(payload)); }
+        catch (e) { $('doneSub').textContent = 'Откройте расчёт кнопкой «🚗 Рассчитать и записаться» в чате с ботом'; }
+        setTimeout(() => { $('doneSub').textContent = 'Не удалось отправить заявку. Откройте расчёт кнопкой «🚗 Рассчитать и записаться» внизу чата.'; }, 2500);
+      }, 1300);
+    } else {
+      $('doneSub').textContent = 'Демо-режим: в Telegram заявка уйдёт в чат с ботом';
+    }
+  }
+
+  function confetti() {
+    const box = document.createElement('div');
+    box.className = 'conf';
+    for (let k = 0; k < 56; k++) {
+      const i = document.createElement('i');
+      i.style.left = Math.random() * 100 + '%';
+      i.style.background = k % 3 ? (k % 2 ? '#ff6a1a' : '#f1f2f4') : '#0c0d0f';
+      if (!(k % 3)) i.style.border = '1px solid #f1f2f4';
+      i.style.animationDuration = 1.6 + Math.random() * 1.6 + 's';
+      i.style.animationDelay = Math.random() * .5 + 's';
+      box.appendChild(i);
+    }
+    document.body.appendChild(box);
+    setTimeout(() => box.remove(), 4000);
+  }
+})();
+</script>
+</body>
+</html>

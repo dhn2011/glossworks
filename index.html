@@ -1,0 +1,598 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GLOSSWORKS — детейлинг и сервис в Ташкенте</title>
+<meta name="description" content="GLOSSWORKS — детейлинг-центр и сервис в Ташкенте: мойка, полировка, керамика, химчистка, замена масла. Расчёт стоимости и запись в Telegram.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,500;0,700;1,700;1,800;1,900&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0c0d0f;
+    --surface:#15171a;
+    --surface-2:#1d2024;
+    --ink:#f1f2f4;
+    --muted:#8b9099;
+    --line:rgba(241,242,244,.1);
+    --accent:#ff6a1a;
+    --accent-2:#ffb27a;
+    --radius:22px;
+    --ease:cubic-bezier(.22,1,.36,1);
+    --display:'Exo 2',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  html.lenis,html.lenis body{height:auto}
+  .lenis.lenis-smooth{scroll-behavior:auto!important}
+  body{font-family:'Manrope',system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.55;overflow-x:hidden}
+  img,video{display:block;max-width:100%}
+  /* clip (not hidden) so off-screen animation start states can't widen the page and sticky still works */
+  main,footer{overflow-x:clip}
+  a{color:inherit;text-decoration:none}
+  button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+  .container{width:min(1300px,100% - 32px);margin-inline:auto}
+  .kicker{display:inline-flex;align-items:center;gap:10px;font-family:var(--display);font-weight:700;font-style:italic;text-transform:uppercase;letter-spacing:.16em;font-size:13px;color:var(--accent)}
+  .kicker::before{content:"";width:22px;height:3px;background:var(--accent);transform:skewX(-20deg)}
+  .h2{font-family:var(--display);font-weight:900;font-style:italic;text-transform:uppercase;font-size:clamp(38px,6.4vw,96px);line-height:.92;letter-spacing:-.01em}
+  .h2 .ac{color:var(--accent)}
+  .lead{color:var(--muted);font-size:clamp(16px,1.3vw,18px);max-width:520px}
+  .section{padding:clamp(90px,11vw,160px) 0;position:relative}
+
+  .btn{display:inline-flex;align-items:center;gap:14px;height:58px;padding:0 10px 0 26px;font-family:var(--display);font-weight:800;font-style:italic;text-transform:uppercase;letter-spacing:.06em;font-size:15px;clip-path:polygon(12px 0,100% 0,calc(100% - 12px) 100%,0 100%);transition:transform .4s var(--ease),background .3s,color .3s}
+  .btn .ic{width:40px;height:40px;display:grid;place-items:center;clip-path:polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%);transition:transform .5s var(--ease)}
+  .btn:hover .ic{transform:translateX(4px)}
+  .btn-accent{background:var(--accent);color:#0c0d0f}
+  .btn-accent .ic{background:#0c0d0f;color:var(--accent)}
+  .btn-accent:hover{background:var(--accent-2);transform:translateY(-2px)}
+  .btn-ghost{background:rgba(241,242,244,.08);padding:0 28px;backdrop-filter:blur(8px)}
+  .btn-ghost:hover{background:rgba(241,242,244,.16)}
+
+  /* header */
+  .header{position:fixed;inset:0 0 auto;z-index:50;transition:transform .5s var(--ease),background .4s}
+  .header.scrolled{background:rgba(12,13,15,.75);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+  .header.hidden{transform:translateY(-100%)}
+  .header .container{display:flex;align-items:center;justify-content:space-between;height:80px}
+  .logo{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:900;font-style:italic;font-size:22px;letter-spacing:.02em}
+  .logo b{color:var(--accent)}
+  .logo svg{width:34px;height:22px}
+  .nav{display:flex;gap:34px;font-weight:600;font-size:15px;color:rgba(241,242,244,.75)}
+  .nav a{transition:color .3s;position:relative}
+  .nav a::after{content:"";position:absolute;left:0;right:0;bottom:-6px;height:2px;background:var(--accent);transform:scaleX(0) skewX(-20deg);transition:transform .4s var(--ease)}
+  .nav a:hover{color:var(--ink)}
+  .nav a:hover::after{transform:scaleX(1) skewX(-20deg)}
+  .header .btn{height:46px;font-size:13px;padding-left:20px}
+  .header .btn .ic{width:32px;height:32px}
+  .burger{display:none;width:46px;height:46px;border:1px solid var(--line);place-items:center;border-radius:12px}
+
+  /* hero: video card that shrinks while scrolling */
+  .hero-wrap{height:170vh;position:relative}
+  .hero{position:sticky;top:0;height:100vh;overflow:hidden;display:flex;align-items:center;justify-content:center}
+  .hero-card{position:absolute;inset:0;overflow:hidden;will-change:transform,border-radius}
+  .hero-card video{width:100%;height:100%;object-fit:cover}
+  .hero-card::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(12,13,15,.55),rgba(12,13,15,.2) 40%,rgba(12,13,15,.9))}
+  .hero-content{position:absolute;z-index:2;left:0;right:0;bottom:clamp(40px,8vh,90px)}
+  .hero h1{font-family:var(--display);font-weight:900;font-style:italic;text-transform:uppercase;font-size:clamp(54px,10.5vw,170px);line-height:.86;letter-spacing:-.01em}
+  .hero h1 .ln{display:block;overflow:hidden;padding-right:.1em}
+  .hero h1 .ln > span{display:inline-block}
+  .gloss{background:linear-gradient(100deg,#f1f2f4 0%,#f1f2f4 40%,#ffffff 46%,#ffb27a 50%,#ffffff 54%,#f1f2f4 60%,#f1f2f4 100%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:sweep 4.5s ease-in-out infinite}
+  .gloss.ac{background-image:linear-gradient(100deg,#ff6a1a 0%,#ff6a1a 40%,#ffd2b0 48%,#fff 50%,#ffd2b0 52%,#ff6a1a 60%,#ff6a1a 100%)}
+  @keyframes sweep{0%{background-position:120% 0}60%,100%{background-position:-20% 0}}
+  .hero-row{display:flex;justify-content:space-between;align-items:flex-end;gap:30px;margin-top:30px;flex-wrap:wrap}
+  .hero-row .lead{color:rgba(241,242,244,.8);max-width:440px}
+  .gauges{display:flex;gap:12px}
+  .gauge{background:rgba(12,13,15,.55);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:16px;padding:14px 18px;min-width:120px}
+  .gauge b{display:block;font-family:var(--display);font-weight:800;font-style:italic;font-size:28px;line-height:1}
+  .gauge span{font-size:12px;color:var(--muted)}
+
+  /* brands */
+  .brands{border-block:1px solid var(--line);overflow:hidden;padding:26px 0}
+  .brands-track{display:flex;width:max-content;animation:mq 34s linear infinite}
+  .brands-track span{font-family:var(--display);font-weight:800;font-style:italic;text-transform:uppercase;font-size:clamp(22px,2.6vw,34px);color:rgba(241,242,244,.28);padding:0 34px;white-space:nowrap}
+  .brands-track span:nth-child(3n+2){color:rgba(255,106,26,.55)}
+  @keyframes mq{to{transform:translateX(-50%)}}
+
+  /* services: spotlight cards */
+  .svc-head{display:flex;justify-content:space-between;align-items:flex-end;gap:30px;flex-wrap:wrap;margin-bottom:50px}
+  .svc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .svc{position:relative;border-radius:var(--radius);background:var(--surface);overflow:hidden;min-height:380px;display:flex;flex-direction:column;justify-content:flex-end;isolation:isolate}
+  .svc img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2;opacity:.55;transition:opacity .6s,transform 1.2s var(--ease)}
+  .svc::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(21,23,26,0) 20%,rgba(21,23,26,.96) 80%)}
+  .svc::after{content:"";position:absolute;inset:0;border-radius:inherit;padding:1.5px;background:radial-gradient(260px circle at var(--mx,50%) var(--my,50%),var(--accent),transparent 70%);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:0;transition:opacity .4s;pointer-events:none}
+  .svc:hover::after{opacity:1}
+  .svc:hover img{opacity:.8;transform:scale(1.06)}
+  .svc .in{padding:26px}
+  .svc .no{font-family:var(--display);font-weight:800;font-style:italic;color:var(--accent);font-size:14px}
+  .svc h3{font-family:var(--display);font-weight:800;font-style:italic;text-transform:uppercase;font-size:28px;line-height:1;margin:8px 0 10px}
+  .svc p{color:rgba(241,242,244,.7);font-size:15px}
+  .svc .meta{display:flex;justify-content:space-between;margin-top:18px;padding-top:16px;border-top:1px solid var(--line);font-size:14px;color:var(--muted)}
+  .svc .meta b{color:var(--ink);font-family:var(--display);font-style:italic;font-size:18px}
+
+  /* before / after */
+  .ba-wrap{display:grid;grid-template-columns:.85fr 1.15fr;gap:56px;align-items:center}
+  .ba{position:relative;aspect-ratio:16/11;border-radius:var(--radius);overflow:hidden;user-select:none;touch-action:pan-y;cursor:ew-resize}
+  .ba img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none}
+  .ba .before{filter:saturate(.35) brightness(.62) contrast(.85) blur(.4px);clip-path:inset(0 50% 0 0)}
+  .ba .handle{position:absolute;top:0;bottom:0;left:50%;width:3px;background:var(--accent);transform:translateX(-1.5px)}
+  .ba .knob{position:absolute;top:50%;left:50%;width:58px;height:58px;transform:translate(-50%,-50%) skewX(-12deg);background:var(--accent);color:#0c0d0f;display:grid;place-items:center;border-radius:12px;box-shadow:0 10px 30px -8px rgba(255,106,26,.8)}
+  .ba .lbl{position:absolute;top:16px;font-family:var(--display);font-weight:800;font-style:italic;text-transform:uppercase;font-size:13px;background:rgba(12,13,15,.7);padding:6px 14px;border-radius:8px}
+  .ba .lbl.l{left:16px}.ba .lbl.r{right:16px;color:var(--accent)}
+  .ba-points{margin-top:30px;display:grid;gap:10px}
+  .ba-points div{display:flex;gap:14px;align-items:center;background:var(--surface);border-radius:14px;padding:14px 18px;font-size:15px}
+  .ba-points b{font-family:var(--display);font-style:italic;color:var(--accent);font-size:20px;min-width:66px}
+
+  /* process: road line drawn by scroll */
+  .process{position:relative;display:grid;gap:clamp(40px,7vh,80px);margin-top:60px;padding-left:90px}
+  .road{position:absolute;left:24px;top:0;bottom:0;width:40px}
+  .road svg{width:100%;height:100%;overflow:visible}
+  .road .base{stroke:var(--line);stroke-width:3}
+  .road .dash{stroke:rgba(241,242,244,.25);stroke-width:2;stroke-dasharray:10 14}
+  .road .fill{stroke:var(--accent);stroke-width:3}
+  .pstep{position:relative}
+  .pstep .dot{position:absolute;left:-78px;top:4px;width:30px;height:30px;border-radius:50%;background:var(--bg);border:3px solid var(--line);transition:border-color .4s,background .4s,box-shadow .4s}
+  .pstep.on .dot{border-color:var(--accent);background:var(--accent);box-shadow:0 0 0 8px rgba(255,106,26,.15)}
+  .pstep .num{font-family:var(--display);font-weight:800;font-style:italic;color:var(--accent);font-size:14px}
+  .pstep h3{font-family:var(--display);font-weight:800;font-style:italic;text-transform:uppercase;font-size:clamp(26px,3vw,40px);line-height:1;margin:8px 0 10px}
+  .pstep p{color:var(--muted);max-width:520px}
+  .process-grid{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start}
+  .process-video{position:sticky;top:14vh;border-radius:var(--radius);overflow:hidden;aspect-ratio:4/4.6}
+  .process-video video{width:100%;height:100%;object-fit:cover}
+
+  /* pricing */
+  .classes{display:inline-flex;background:var(--surface);border-radius:14px;padding:5px;margin-bottom:34px;position:relative}
+  .classes button{height:46px;padding:0 20px;border-radius:10px;font-weight:700;font-size:15px;position:relative;z-index:1;transition:color .3s}
+  .classes button.on{color:#0c0d0f}
+  .classes i{position:absolute;top:5px;bottom:5px;left:5px;border-radius:10px;background:var(--accent);transition:transform .45s var(--ease),width .45s var(--ease)}
+  .plans{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .plan{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:30px;display:flex;flex-direction:column;position:relative;overflow:hidden}
+  .plan.best{border-color:var(--accent);background:linear-gradient(160deg,rgba(255,106,26,.14),var(--surface) 45%)}
+  .plan .tag{position:absolute;right:20px;top:20px;background:var(--accent);color:#0c0d0f;font-family:var(--display);font-weight:800;font-style:italic;font-size:12px;text-transform:uppercase;padding:5px 12px;border-radius:8px}
+  .plan h3{font-family:var(--display);font-weight:800;font-style:italic;text-transform:uppercase;font-size:26px}
+  .plan .price{font-family:var(--display);font-weight:900;font-style:italic;font-size:clamp(38px,3.6vw,52px);margin:16px 0 4px;line-height:1}
+  .plan .price small{font-size:16px;color:var(--muted);font-weight:700}
+  .plan .time{color:var(--muted);font-size:14px}
+  .plan ul{list-style:none;margin:24px 0 28px;display:grid;gap:10px;flex:1}
+  .plan li{display:flex;gap:10px;font-size:15px}
+  .plan li::before{content:"";width:16px;height:16px;flex:none;margin-top:4px;background:var(--accent);clip-path:polygon(14% 52%,0 66%,38% 100%,100% 18%,86% 4%,38% 72%)}
+  .plan .btn{justify-content:space-between}
+
+  /* foam video band */
+  .band{position:relative;height:clamp(420px,72vh,760px);border-radius:var(--radius);overflow:hidden}
+  .band video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.15)}
+  .band::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(12,13,15,.85),rgba(12,13,15,.1) 70%)}
+  .band .cap{position:absolute;z-index:2;left:clamp(22px,5vw,70px);top:50%;transform:translateY(-50%);max-width:560px}
+  .band .cap p{color:rgba(241,242,244,.8);margin-top:18px}
+
+  /* gallery */
+  .gal{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:220px;gap:14px;margin-top:50px}
+  .gal .g{border-radius:18px;overflow:hidden;position:relative;background:var(--surface)}
+  .gal .g img{width:100%;height:100%;object-fit:cover;transition:transform 1.2s var(--ease)}
+  .gal .g:hover img{transform:scale(1.07)}
+  .gal .g.w2{grid-column:span 2}
+  .gal .g.h2{grid-row:span 2}
+  .gal .g span{position:absolute;left:12px;bottom:12px;background:rgba(12,13,15,.75);font-family:var(--display);font-weight:800;font-style:italic;text-transform:uppercase;font-size:12px;padding:5px 12px;border-radius:8px}
+
+  /* reviews */
+  .revs{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:50px}
+  .rev{background:var(--surface);border-radius:var(--radius);padding:28px;border:1px solid var(--line)}
+  .rev .car{font-family:var(--display);font-weight:800;font-style:italic;text-transform:uppercase;color:var(--accent);font-size:13px}
+  .rev p{margin:14px 0 20px;font-size:16px}
+  .rev .who{display:flex;justify-content:space-between;color:var(--muted);font-size:14px}
+  .rev .who b{color:var(--ink)}
+
+  /* cta */
+  .cta{position:relative;border-radius:calc(var(--radius) + 6px);overflow:hidden;min-height:560px;display:grid;grid-template-columns:1.1fr .9fr}
+  .cta video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .cta::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(12,13,15,.95) 30%,rgba(12,13,15,.4))}
+  .cta .in{position:relative;z-index:2;padding:clamp(30px,5vw,70px);display:flex;flex-direction:column;justify-content:center}
+  .cta .in p{color:rgba(241,242,244,.8);margin:20px 0 32px;max-width:460px}
+  .cta .info{position:relative;z-index:2;align-self:end;margin:clamp(20px,4vw,50px);background:rgba(12,13,15,.7);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:18px;padding:24px;display:grid;gap:14px;font-size:15px}
+  .cta .info div{display:flex;gap:12px}
+  .cta .info span:first-child{color:var(--accent);font-family:var(--display);font-weight:800;font-style:italic;min-width:80px;text-transform:uppercase;font-size:13px;padding-top:2px}
+
+  footer{padding:80px 0 40px;border-top:1px solid var(--line)}
+  .foot{display:flex;justify-content:space-between;gap:30px;flex-wrap:wrap;color:var(--muted);font-size:14px}
+  .foot-big{font-family:var(--display);font-weight:900;font-style:italic;text-transform:uppercase;font-size:clamp(56px,15.5vw,250px);line-height:.85;letter-spacing:-.01em;margin-top:40px;white-space:nowrap;overflow:hidden;color:transparent;-webkit-text-stroke:1.5px rgba(241,242,244,.15)}
+  .foot-big b{-webkit-text-stroke:1.5px var(--accent)}
+
+  .m-cta{display:none}
+  .m-menu{position:fixed;inset:0;z-index:60;background:#0a0b0c;padding:110px 24px 40px;display:flex;flex-direction:column;clip-path:polygon(0 0,100% 0,100% 0,0 0);transition:clip-path .7s var(--ease);visibility:hidden}
+  .m-menu.open{clip-path:polygon(0 0,100% 0,100% 100%,0 100%);visibility:visible}
+  .m-menu a{font-family:var(--display);font-weight:900;font-style:italic;text-transform:uppercase;font-size:40px;padding:8px 0;border-bottom:1px solid var(--line)}
+  .m-close{position:absolute;right:16px;top:17px;width:46px;height:46px;border:1px solid var(--line);border-radius:12px;font-size:24px}
+
+  @media (max-width:1024px){
+    .nav{display:none}
+    .svc-grid,.plans,.revs{grid-template-columns:1fr 1fr}
+    .ba-wrap,.process-grid,.cta{grid-template-columns:1fr}
+    .process-video{position:relative;top:0;aspect-ratio:16/10;order:-1}
+    .gal{grid-template-columns:repeat(2,1fr)}
+    .gal .g.w2{grid-column:span 2}
+  }
+  @media (max-width:640px){
+    .header .btn{display:none}
+    .burger{display:grid}
+    .hero-wrap{height:150vh}
+    .gauges{flex-wrap:wrap}
+    .gauge{min-width:0;flex:1}
+    .svc-grid,.plans,.revs{grid-template-columns:1fr}
+    .svc{min-height:320px}
+    .process{padding-left:56px}
+    .road{left:6px}
+    .pstep .dot{left:-60px}
+    .gal{grid-auto-rows:150px;gap:10px}
+    .classes{display:flex}
+    .classes button{flex:1;padding:0 8px;font-size:14px}
+    .m-cta{display:flex;position:fixed;left:12px;right:12px;bottom:12px;z-index:45;height:58px;background:var(--accent);color:#0c0d0f;align-items:center;justify-content:center;font-family:var(--display);font-weight:900;font-style:italic;text-transform:uppercase;letter-spacing:.04em;clip-path:polygon(14px 0,100% 0,calc(100% - 14px) 100%,0 100%);transform:translateY(140%);transition:transform .5s var(--ease)}
+    .m-cta.show{transform:none}
+    footer{padding-bottom:100px}
+  }
+</style>
+</head>
+<body>
+
+<header class="header" id="header">
+  <div class="container">
+    <a href="#top" class="logo" aria-label="GLOSSWORKS">
+      <svg viewBox="0 0 34 22" fill="none"><path d="M6 0h28l-6 22H0L6 0Z" fill="#ff6a1a"/><path d="M12 6h14M10 11h12M8 16h10" stroke="#0c0d0f" stroke-width="2.4"/></svg>
+      GLOSS<b>WORKS</b>
+    </a>
+    <nav class="nav">
+      <a href="#services">Услуги</a>
+      <a href="#prices">Цены</a>
+      <a href="#process">Процесс</a>
+      <a href="#works">Работы</a>
+      <a href="#contacts">Контакты</a>
+    </nav>
+    <div style="display:flex;gap:10px;align-items:center">
+      <a href="https://t.me/servce_tash3_bot" target="_blank" rel="noopener" class="btn btn-accent">Рассчитать <span class="ic"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 7h12M8 2l5 5-5 5" stroke="currentColor" stroke-width="2"/></svg></span></a>
+      <button class="burger" id="burger" aria-label="Меню"><svg width="18" height="12" viewBox="0 0 18 12"><path d="M0 1h18M0 11h18" stroke="currentColor" stroke-width="1.8"/></svg></button>
+    </div>
+  </div>
+</header>
+
+<div class="m-menu" id="mMenu">
+  <button class="m-close" id="mClose" aria-label="Закрыть">×</button>
+  <a href="#services">Услуги</a>
+  <a href="#prices">Цены</a>
+  <a href="#process">Процесс</a>
+  <a href="#works">Работы</a>
+  <a href="#contacts">Контакты</a>
+  <a href="https://t.me/servce_tash3_bot" target="_blank" rel="noopener" style="color:var(--accent)">Рассчитать →</a>
+</div>
+
+<main id="top">
+
+  <!-- HERO -->
+  <div class="hero-wrap" id="heroWrap">
+    <section class="hero">
+      <div class="hero-card" id="heroCard">
+        <video autoplay muted loop playsinline preload="auto" poster="https://images.unsplash.com/photo-1567808291548-fc3ee04dbcf0?auto=format&fit=crop&w=1600&q=70">
+          <source src="https://videos.pexels.com/video-files/6157780/6157780-hd_1920_1080_30fps.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div class="container hero-content" id="heroContent">
+        <span class="kicker h-in">Детейлинг · Сервис · Ташкент</span>
+        <h1 id="heroTitle" style="margin-top:18px">
+          <span class="ln"><span class="gloss">Блеск,</span></span>
+          <span class="ln"><span class="gloss">который видно</span></span>
+          <span class="ln"><span class="gloss ac">за километр</span></span>
+        </h1>
+        <div class="hero-row">
+          <p class="lead h-in">Мойка, полировка, керамика, химчистка и базовое ТО в одном месте. Рассчитайте стоимость для своей машины за минуту — прямо в Telegram.</p>
+          <div class="gauges h-in">
+            <div class="gauge"><b><span class="count" data-to="11400">0</span>+</b><span>машин обслужили</span></div>
+            <div class="gauge"><b>3</b><span>бокса · без очередей</span></div>
+            <div class="gauge"><b>4.9★</b><span>540 отзывов</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- BRANDS -->
+  <div class="brands" aria-hidden="true">
+    <div class="brands-track">
+      <span>Chevrolet</span><span>BYD</span><span>Toyota</span><span>Kia</span><span>Hyundai</span><span>Mercedes-Benz</span><span>BMW</span><span>Lexus</span><span>Tesla</span><span>Haval</span>
+      <span>Chevrolet</span><span>BYD</span><span>Toyota</span><span>Kia</span><span>Hyundai</span><span>Mercedes-Benz</span><span>BMW</span><span>Lexus</span><span>Tesla</span><span>Haval</span>
+    </div>
+  </div>
+
+  <!-- SERVICES -->
+  <section class="section" id="services">
+    <div class="container">
+      <div class="svc-head">
+        <div>
+          <span class="kicker up">Услуги</span>
+          <h2 class="h2 up" style="margin-top:20px">Всё для <span class="ac">машины</span><br>под одной крышей</h2>
+        </div>
+        <p class="lead up">Цена зависит от класса авто — точную сумму покажет калькулятор в нашем Telegram-боте до записи.</p>
+      </div>
+      <div class="svc-grid">
+        <a class="svc up" href="https://t.me/servce_tash3_bot" target="_blank" rel="noopener"><img src="https://images.unsplash.com/photo-1761312834150-4beefff097a7?auto=format&fit=crop&w=800&q=70" alt="" loading="lazy"><div class="in"><span class="no">01</span><h3>Детейлинг-мойка</h3><p>Двухфазная мойка, пена, ручная сушка, чернение шин и диски.</p><div class="meta"><span>от 60 минут</span><b>от 80 000</b></div></div></a>
+        <a class="svc up" href="https://t.me/servce_tash3_bot" target="_blank" rel="noopener"><img src="https://images.unsplash.com/photo-1708805282695-ef186db20192?auto=format&fit=crop&w=800&q=70" alt="" loading="lazy"><div class="in"><span class="no">02</span><h3>Полировка кузова</h3><p>Убираем голограммы и мелкие царапины, возвращаем глубину цвета.</p><div class="meta"><span>от 6 часов</span><b>от 1 200 000</b></div></div></a>
+        <a class="svc up" href="https://t.me/servce_tash3_bot" target="_blank" rel="noopener"><img src="https://images.unsplash.com/photo-1708805282683-50a060eba80f?auto=format&fit=crop&w=800&q=70" alt="" loading="lazy"><div class="in"><span class="no">03</span><h3>Керамика</h3><p>Два слоя кварцевой защиты: блеск и гидрофоб до 2 лет.</p><div class="meta"><span>1 день</span><b>от 3 500 000</b></div></div></a>
+        <a class="svc up" href="https://t.me/servce_tash3_bot" target="_blank" rel="noopener"><img src="https://images.unsplash.com/photo-1549064233-945d7063292f?auto=format&fit=crop&w=800&q=70" alt="" loading="lazy"><div class="in"><span class="no">04</span><h3>Химчистка салона</h3><p>Кожа, ткань, потолок и багажник. Сушим, озонируем, наносим защиту.</p><div class="meta"><span>4–5 часов</span><b>от 600 000</b></div></div></a>
+        <a class="svc up" href="https://t.me/servce_tash3_bot" target="_blank" rel="noopener"><img src="https://images.unsplash.com/photo-1487754180451-c456f719a1fc?auto=format&fit=crop&w=800&q=70" alt="" loading="lazy"><div class="in"><span class="no">05</span><h3>Замена масла и ТО</h3><p>Масло, фильтры, проверка жидкостей и подвески за 30 минут.</p><div class="meta"><span>от 30 минут</span><b>от 100 000</b></div></div></a>
+        <a class="svc up" href="https://t.me/servce_tash3_bot" target="_blank" rel="noopener"><img src="https://images.unsplash.com/photo-1760836395760-9831facb4754?auto=format&fit=crop&w=800&q=70" alt="" loading="lazy"><div class="in"><span class="no">06</span><h3>Шиномонтаж</h3><p>Сезонная замена, балансировка и хранение колёс.</p><div class="meta"><span>от 50 минут</span><b>от 160 000</b></div></div></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- BEFORE / AFTER -->
+  <section class="section" style="padding-top:0">
+    <div class="container ba-wrap">
+      <div>
+        <span class="kicker up">До и после</span>
+        <h2 class="h2 up" style="margin-top:20px">Потяни <span class="ac">ползунок</span></h2>
+        <p class="lead up" style="margin-top:20px">Восстановительная полировка + керамика. Тот же автомобиль, тот же свет — разница в 8 часов работы.</p>
+        <div class="ba-points up">
+          <div><b>−95%</b>голограмм и мелких царапин</div>
+          <div><b>×3</b>глубина и насыщенность цвета</div>
+          <div><b>2 года</b>защиты от реагентов и солнца</div>
+        </div>
+      </div>
+      <div class="ba up" id="ba">
+        <img src="https://images.unsplash.com/photo-1567808291548-fc3ee04dbcf0?auto=format&fit=crop&w=1400&q=80" alt="После">
+        <img class="before" src="https://images.unsplash.com/photo-1567808291548-fc3ee04dbcf0?auto=format&fit=crop&w=1400&q=80" alt="До">
+        <span class="lbl l">До</span><span class="lbl r">После</span>
+        <div class="handle"><div class="knob"><svg width="22" height="12" viewBox="0 0 22 12" fill="none"><path d="M6 1 1 6l5 5M16 1l5 5-5 5" stroke="currentColor" stroke-width="2"/></svg></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROCESS -->
+  <section class="section" id="process" style="padding-top:0">
+    <div class="container">
+      <span class="kicker up">Как мы работаем</span>
+      <h2 class="h2 up" style="margin-top:20px">От заявки до <span class="ac">блеска</span></h2>
+      <div class="process-grid">
+        <div class="process" id="processList">
+          <div class="road"><svg preserveAspectRatio="none" viewBox="0 0 40 1000"><path class="base" d="M20 0V1000"/><path class="dash" d="M20 0V1000"/><path class="fill" id="roadFill" d="M20 0V1000"/></svg></div>
+          <div class="pstep"><span class="dot"></span><span class="num">01</span><h3>Расчёт в Telegram</h3><p>Выбираете машину и услуги — калькулятор сразу показывает цену для вашего класса авто. Без звонков и «приезжайте, посмотрим».</p></div>
+          <div class="pstep"><span class="dot"></span><span class="num">02</span><h3>Запись на бокс</h3><p>Видите свободное время во всех трёх боксах. Подтверждаем запись за 10 минут и напоминаем накануне.</p></div>
+          <div class="pstep"><span class="dot"></span><span class="num">03</span><h3>Осмотр и фото</h3><p>Фиксируем состояние кузова и салона на фото при вас. Если найдём что-то ещё — сначала согласуем.</p></div>
+          <div class="pstep"><span class="dot"></span><span class="num">04</span><h3>Работа и статусы</h3><p>Бот пишет, когда машина в работе и когда готова. Можно подождать в лаунж-зоне с кофе и Wi-Fi.</p></div>
+          <div class="pstep"><span class="dot"></span><span class="num">05</span><h3>Выдача и гарантия</h3><p>Показываем результат под светом, даём рекомендации по уходу. А через полгода напомним про ТО.</p></div>
+        </div>
+        <div class="process-video up">
+          <video autoplay muted loop playsinline preload="metadata"><source src="https://videos.pexels.com/video-files/6159290/6159290-hd_1920_1080_30fps.mp4" type="video/mp4"></video>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICES -->
+  <section class="section" id="prices" style="padding-top:0">
+    <div class="container">
+      <div class="svc-head" style="margin-bottom:30px">
+        <div>
+          <span class="kicker up">Пакеты</span>
+          <h2 class="h2 up" style="margin-top:20px">Цена для <span class="ac">твоей</span> машины</h2>
+        </div>
+        <p class="lead up">Выберите класс автомобиля — цены обновятся. Точную смету с доп. услугами соберёт калькулятор в боте.</p>
+      </div>
+      <div class="classes up" id="classes"><i></i><button class="on" data-c="0">🚗 Седан</button><button data-c="1">🚙 Кроссовер</button><button data-c="2">🛻 Внедорожник</button></div>
+      <div class="plans">
+        <div class="plan up"><h3>Экспресс</h3><div class="price"><span class="pp" data-p="230000,270000,330000">230 000</span> <small>сум</small></div><div class="time">≈ 1,5 часа</div><ul><li>Детейлинг-мойка с пеной</li><li>Антидождь на стёкла</li><li>Чернение шин и уборка салона</li></ul><a href="https://t.me/servce_tash3_bot" target="_blank" rel="noopener" class="btn btn-ghost">Записаться →</a></div>
+        <div class="plan best up"><span class="tag">Хит</span><h3>Комплекс</h3><div class="price"><span class="pp" data-p="650000,820000,990000">650 000</span> <small>сум</small></div><div class="time">≈ 5 часов</div><ul><li>Детейлинг-мойка</li><li>Химчистка салона</li><li>Озонирование и защита кожи</li><li>Скидка 10% на пакет</li></ul><a href="https://t.me/servce_tash3_bot" target="_blank" rel="noopener" class="btn btn-accent">Записаться <span class="ic"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 7h12M8 2l5 5-5 5" stroke="currentColor" stroke-width="2"/></svg></span></a></div>
+        <div class="plan up"><h3>Премиум</h3><div class="price"><span class="pp" data-p="4900000,5900000,7100000">4 900 000</span> <small>сум</small></div><div class="time">1–2 дня</div><ul><li>Восстановительная полировка</li><li>Керамика в 2 слоя</li><li>Химчистка салона</li><li>Гарантия 2 года</li></ul><a href="https://t.me/servce_tash3_bot" target="_blank" rel="noopener" class="btn btn-ghost">Записаться →</a></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOAM BAND -->
+  <section class="container" style="padding-bottom:clamp(90px,11vw,160px)">
+    <div class="band up" id="band">
+      <video autoplay muted loop playsinline preload="metadata"><source src="https://videos.pexels.com/video-files/13643113/13643113-hd_1920_1080_24fps.mp4" type="video/mp4"></video>
+      <div class="cap">
+        <span class="kicker">Безопасная мойка</span>
+        <h2 class="h2" style="margin-top:18px">Ни одной<br><span class="ac">новой царапины</span></h2>
+        <p>Двухфазная мойка с pH-нейтральной пеной и метод двух вёдер — то, что делают в детейлинге, а не на обычной автомойке.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- WORKS -->
+  <section class="section" id="works" style="padding-top:0">
+    <div class="container">
+      <span class="kicker up">Наши работы</span>
+      <h2 class="h2 up" style="margin-top:20px">Машины, которые <span class="ac">сияют</span></h2>
+      <div class="gal">
+        <div class="g w2 h2 gi"><img src="https://images.unsplash.com/photo-1628519592419-bf288f08cef5?auto=format&fit=crop&w=1100&q=70" alt="" loading="lazy"><span>Керамика · спорткар</span></div>
+        <div class="g gi"><img src="https://images.unsplash.com/photo-1780558852670-3f49298ecc1f?auto=format&fit=crop&w=600&q=70" alt="" loading="lazy"><span>Полировка</span></div>
+        <div class="g h2 gi"><img src="https://images.unsplash.com/photo-1732357624591-f2137085659b?auto=format&fit=crop&w=600&h=900&q=70" alt="" loading="lazy"><span>Химчистка</span></div>
+        <div class="g gi"><img src="https://images.unsplash.com/photo-1508974239320-0a029497e820?auto=format&fit=crop&w=600&q=70" alt="" loading="lazy"><span>Детейлинг-мойка</span></div>
+        <div class="g w2 gi"><img src="https://images.unsplash.com/photo-1618642624018-a370cbf3cd80?auto=format&fit=crop&w=1100&h=500&q=70" alt="" loading="lazy"><span>Подготовка к продаже</span></div>
+        <div class="g gi"><img src="https://images.unsplash.com/photo-1607860108855-64acf2078ed9?auto=format&fit=crop&w=600&q=70" alt="" loading="lazy"><span>Мойка</span></div>
+        <div class="g gi"><img src="https://images.unsplash.com/photo-1771491237209-b89bc7290588?auto=format&fit=crop&w=600&q=70" alt="" loading="lazy"><span>Уход за кожей</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- REVIEWS -->
+  <section class="section" style="padding-top:0">
+    <div class="container">
+      <span class="kicker up">Отзывы</span>
+      <h2 class="h2 up" style="margin-top:20px">Говорят <span class="ac">владельцы</span></h2>
+      <div class="revs">
+        <div class="rev up"><span class="car">Chevrolet Malibu 2</span><p>Сделали полировку и керамику перед продажей — машину купили за неделю и дороже, чем я планировал.</p><div class="who"><b>Ботир</b><span>★★★★★</span></div></div>
+        <div class="rev up"><span class="car">BYD Song Plus</span><p>Удобно, что цену видно сразу в боте. Записался на вечер, получил сообщение «готово» и забрал после работы.</p><div class="who"><b>Ирина</b><span>★★★★★</span></div></div>
+        <div class="rev up"><span class="car">Toyota Land Cruiser</span><p>Химчистка после поездки в горы — салон как из салона. Отдельное спасибо за напоминание о замене масла.</p><div class="who"><b>Акмаль</b><span>★★★★★</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="section" id="contacts" style="padding-top:0">
+    <div class="container">
+      <div class="cta up">
+        <video autoplay muted loop playsinline preload="metadata"><source src="https://videos.pexels.com/video-files/6159287/6159287-hd_1920_1080_30fps.mp4" type="video/mp4"></video>
+        <div class="in">
+          <span class="kicker">Калькулятор в Telegram</span>
+          <h2 class="h2" style="margin-top:18px">Узнай цену <span class="ac">за минуту</span></h2>
+          <p>Выбери марку, отметь услуги — бот посчитает стоимость для твоего класса авто и покажет свободное время в боксах.</p>
+          <div><a href="https://t.me/servce_tash3_bot" target="_blank" rel="noopener" class="btn btn-accent">Рассчитать стоимость <span class="ic"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 7h12M8 2l5 5-5 5" stroke="currentColor" stroke-width="2"/></svg></span></a></div>
+        </div>
+        <div class="info">
+          <div><span>Адрес</span><span>Ташкент, Яккасарайский р-н,<br>ул. Бабура, 78</span></div>
+          <div><span>Часы</span><span>Ежедневно 9:00 – 21:00</span></div>
+          <div><span>Телефон</span><a href="tel:+998712005566">+998 71 200-55-66</a></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="container">
+    <div class="foot"><span>© 2026 GLOSSWORKS. Демонстрационный сайт.</span><span>Детейлинг · Сервис · Ташкент</span></div>
+    <div class="foot-big">GLOSS<b>WORKS</b></div>
+  </div>
+</footer>
+
+<a href="https://t.me/servce_tash3_bot" target="_blank" rel="noopener" class="m-cta" id="mCta">Рассчитать стоимость →</a>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
+<script>
+(() => {
+  const hasGsap = window.gsap && window.ScrollTrigger;
+
+  /* ---------- smooth scroll ---------- */
+  let lenis = null;
+  if (window.Lenis) {
+    lenis = new Lenis({ duration: 1.1, smoothWheel: true });
+    if (hasGsap) {
+      lenis.on('scroll', ScrollTrigger.update);
+      gsap.ticker.add(t => lenis.raf(t * 1000));
+      gsap.ticker.lagSmoothing(0);
+    } else {
+      const raf = t => { lenis.raf(t); requestAnimationFrame(raf); };
+      requestAnimationFrame(raf);
+    }
+  }
+  document.querySelectorAll('a[href^="#"]').forEach(a => a.addEventListener('click', e => {
+    const id = a.getAttribute('href');
+    const el = id === '#top' ? document.body : document.querySelector(id);
+    if (!el) return;
+    e.preventDefault();
+    closeMenu();
+    lenis ? lenis.scrollTo(el, { offset: id === '#top' ? 0 : -80, duration: 1.4 }) : el.scrollIntoView({ behavior: 'smooth' });
+  }));
+
+  /* ---------- header, mobile menu & CTA ---------- */
+  const header = document.getElementById('header'), mCta = document.getElementById('mCta');
+  let lastY = 0;
+  addEventListener('scroll', () => {
+    const y = scrollY;
+    header.classList.toggle('scrolled', y > 40);
+    header.classList.toggle('hidden', y > 600 && y > lastY);
+    mCta.classList.toggle('show', y > innerHeight);
+    lastY = y;
+  }, { passive: true });
+  const menu = document.getElementById('mMenu');
+  function closeMenu() { menu.classList.remove('open'); lenis && lenis.start(); }
+  document.getElementById('burger').onclick = () => { menu.classList.add('open'); lenis && lenis.stop(); };
+  document.getElementById('mClose').onclick = closeMenu;
+  menu.querySelectorAll('a[target]').forEach(a => a.addEventListener('click', closeMenu));
+
+  /* ---------- spotlight border follows the cursor ---------- */
+  document.querySelectorAll('.svc').forEach(c => c.addEventListener('pointermove', e => {
+    const r = c.getBoundingClientRect();
+    c.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+    c.style.setProperty('--my', (e.clientY - r.top) + 'px');
+  }));
+
+  /* ---------- before / after ---------- */
+  const ba = document.getElementById('ba'), before = ba.querySelector('.before'), handle = ba.querySelector('.handle');
+  const setBA = p => { p = Math.max(2, Math.min(98, p)); before.style.clipPath = `inset(0 ${100 - p}% 0 0)`; handle.style.left = p + '%'; };
+  let drag = false;
+  const move = e => { const r = ba.getBoundingClientRect(); setBA((e.clientX - r.left) / r.width * 100); };
+  ba.addEventListener('pointerdown', e => { drag = true; ba.setPointerCapture(e.pointerId); move(e); });
+  ba.addEventListener('pointermove', e => drag && move(e));
+  ba.addEventListener('pointerup', () => drag = false);
+  ba.addEventListener('pointercancel', () => drag = false);
+
+  /* ---------- pricing by car class ---------- */
+  const classes = document.getElementById('classes');
+  const pill = classes.querySelector('i');
+  const placePill = b => { pill.style.width = b.offsetWidth + 'px'; pill.style.transform = `translateX(${b.offsetLeft - 5}px)`; };
+  const fmt = n => Math.round(n).toLocaleString('ru-RU').replace(/ /g, ' ');
+  classes.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
+    classes.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
+    placePill(b);
+    document.querySelectorAll('.pp').forEach(el => {
+      const to = +el.dataset.p.split(',')[b.dataset.c];
+      const from = +el.textContent.replace(/\D/g, '');
+      if (!hasGsap) { el.textContent = fmt(to); return; }
+      const o = { v: from };
+      gsap.to(o, { v: to, duration: .8, ease: 'power3.out', onUpdate: () => el.textContent = fmt(o.v) });
+    });
+  }));
+  requestAnimationFrame(() => placePill(classes.querySelector('.on')));
+  addEventListener('resize', () => placePill(classes.querySelector('.on')));
+
+  if (!hasGsap) {
+    document.querySelectorAll('.count').forEach(c => c.textContent = fmt(+c.dataset.to));
+    return;
+  }
+  gsap.registerPlugin(ScrollTrigger);
+
+  /* ---------- hero: title rises, video card shrinks on scroll ---------- */
+  gsap.timeline({ defaults: { ease: 'power4.out' } })
+    .from('#heroCard video', { scale: 1.3, duration: 2.2, ease: 'expo.out' })
+    .from('#heroTitle .ln > span', { yPercent: 110, skewX: -10, duration: 1.1, stagger: .1 }, .2)
+    .from('.h-in', { y: 24, opacity: 0, duration: .9, stagger: .08, ease: 'power3.out' }, .6);
+  gsap.to('#heroCard', {
+    scale: .86, borderRadius: 28, ease: 'none',
+    scrollTrigger: { trigger: '#heroWrap', start: 'top top', end: 'bottom bottom', scrub: true }
+  });
+  gsap.to('#heroContent', { y: -80, opacity: 0, ease: 'none', scrollTrigger: { trigger: '#heroWrap', start: '20% top', end: '70% top', scrub: true } });
+  gsap.utils.toArray('.count').forEach(c => {
+    const o = { v: 0 };
+    gsap.to(o, { v: +c.dataset.to, duration: 2.2, delay: .8, ease: 'power2.out', onUpdate: () => c.textContent = fmt(o.v) });
+  });
+
+  /* ---------- fade-up ---------- */
+  gsap.set('.up', { y: 50, opacity: 0 });
+  ScrollTrigger.batch('.up', {
+    start: 'top 88%', once: true,
+    onEnter: els => gsap.to(els, { y: 0, opacity: 1, duration: 1, stagger: .08, ease: 'power3.out', overwrite: true })
+  });
+
+  /* ---------- before/after hint ---------- */
+  ScrollTrigger.create({ trigger: ba, start: 'top 70%', once: true, onEnter: () => {
+    const o = { p: 50 };
+    gsap.timeline().to(o, { p: 22, duration: .8, ease: 'power2.inOut', onUpdate: () => setBA(o.p) })
+      .to(o, { p: 78, duration: 1, ease: 'power2.inOut', onUpdate: () => setBA(o.p) })
+      .to(o, { p: 50, duration: .8, ease: 'power2.inOut', onUpdate: () => setBA(o.p) });
+  }});
+
+  /* ---------- process: the road fills as you scroll, steps light up ---------- */
+  const fill = document.getElementById('roadFill');
+  gsap.fromTo(fill, { strokeDasharray: 1000, strokeDashoffset: 1000 }, { strokeDashoffset: 0, ease: 'none',
+    scrollTrigger: { trigger: '#processList', start: 'top 60%', end: 'bottom 60%', scrub: true } });
+  gsap.utils.toArray('.pstep').forEach(s => {
+    ScrollTrigger.create({ trigger: s, start: 'top 60%', onEnter: () => s.classList.add('on'), onLeaveBack: () => s.classList.remove('on') });
+    gsap.from(s.querySelectorAll('.num, h3, p'), { x: 40, opacity: 0, duration: .9, stagger: .07, ease: 'power3.out', scrollTrigger: { trigger: s, start: 'top 80%', once: true } });
+  });
+
+  /* ---------- foam band zoom-out ---------- */
+  gsap.to('#band video', { scale: 1, ease: 'none', scrollTrigger: { trigger: '#band', start: 'top bottom', end: 'bottom top', scrub: true } });
+
+  /* ---------- gallery: tiles slide in on a slant ---------- */
+  gsap.utils.toArray('.gi').forEach((g, i) => {
+    gsap.from(g, { clipPath: 'polygon(0 0, 0 0, 0 100%, 0 100%)', duration: 1.2, ease: 'expo.inOut', delay: (i % 3) * .08,
+      scrollTrigger: { trigger: g, start: 'top 90%', once: true } });
+    gsap.from(g.querySelector('img'), { scale: 1.3, duration: 1.6, ease: 'expo.out', scrollTrigger: { trigger: g, start: 'top 90%', once: true } });
+  });
+
+  gsap.from('.foot-big', { xPercent: -10, opacity: 0, ease: 'none', scrollTrigger: { trigger: 'footer', start: 'top bottom', end: 'bottom bottom', scrub: true } });
+  addEventListener('load', () => ScrollTrigger.refresh());
+})();
+</script>
+</body>
+</html>
